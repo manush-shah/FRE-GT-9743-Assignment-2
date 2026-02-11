@@ -167,4 +167,20 @@ class OptionStrategy:
 ### Option Strategy Registry
 class OptionStrategyRegistry(Registry):
 
-### TODO
+## TODO
+    def __new__(cls):
+        return super().__new__(cls, 'OptionStrategy', 'strategies.yaml')
+    
+    def register(cls, query, ins_object):
+        if not super().register(query_key=query, inserted_object=ins_object):
+            return
+        
+        if isinstance(ins_object, list):
+            strat = OptionStrategy.createFromList(query, ins_object[0], ins_object[1], ins_object[2])
+        elif isinstance(ins_object, dict):
+            strat = OptionStrategy.createFromDict(query, ins_object)
+
+        else:
+            raise TypeError(f"{type(ins_object)} is not a supported input type")
+        
+        cls._registry[query] = strat
